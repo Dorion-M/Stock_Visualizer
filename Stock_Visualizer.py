@@ -3,14 +3,14 @@ import requests
 import json
 import datetime
 
-#Function to check if a given date is within a specified range
+#function to check if a given date is within a specified range
 def is_date_in_range(date_str, start_date, end_date):
     date = datetime.datetime.strptime(date_str, "%Y-%m-%d")
     start = datetime.datetime.strptime(start_date, "%Y-%m-%d")
     end = datetime.datetime.strptime(end_date, "%Y-%m-%d")
     return start <= date <= end
 
-# Function to filter JSON data based on a specified date range
+#function to filter JSON data based on a specified date range
 def filter_json_data(json_data, start_date, end_date):
     filtered_data = {}
     time_series_keys = [key for key in json_data.keys() if "Time Series" in key]
@@ -21,18 +21,18 @@ def filter_json_data(json_data, start_date, end_date):
             if is_date_in_range(date_str, start_date, end_date):
                 filtered_data[date_str] = data
     
-    #Convert the filtered dictionary to a list of key-value pairs
+    #Converts the filtered dictionary to a list of key-value pairs
     filtered_data_list = list(filtered_data.items())
     
-    #Sort the list based on the date in ascending order
+    #Sorts the list based on the date in ascending order
     sorted_data_list = sorted(filtered_data_list, key=lambda x: datetime.datetime.strptime(x[0], "%Y-%m-%d"))
     
-    #Convert the sorted list back to a dictionary
+    #Converts the sorted list back to a dictionary
     sorted_filtered_data = dict(sorted_data_list)
     
     return sorted_filtered_data
 
-#Gets user input for stock symbol, chart type, time series function, start date, and end date
+#Function to get user input for stock symbol, chart type, time series function, start date, and end date
 def get_user_input():
     while True:
         stock_symbol = input("\nEnter the stock symbol you are looking for: ")
@@ -68,7 +68,7 @@ def get_user_input():
 
     return stock_symbol, chart_type, time_series_function, start_date, end_date
 
-# Function to construct the API URL based on user input
+#Function to construct the API URL based on user input
 def construct_api_url(stock_symbol, time_series_function):
     base_url = 'https://www.alphavantage.co/query?' #base url
     function_map = {
@@ -85,7 +85,11 @@ def construct_api_url(stock_symbol, time_series_function):
     #add an interval if the user chose intraday
     if function == 'TIME_SERIES_INTRADAY':
         interval = '60min'
-        params += f'&interval={interval}'
+        params += f'&interval={interval}&outputsize=full'
+
+    #makes sure output size is full for daily, so that the JSON data doesn't get cut off
+    if function == 'TIME_SERIES_DAILY':
+        params += f'&outputsize=full'
 
     response = requests.get(base_url + params)  #get the json data from querying the API
     if response.status_code == 200:
@@ -114,7 +118,7 @@ while True:
         else:
             print("No data found within the specified date range.")
     
-    #Ask user if they want to view more stock data
+    #ask user if they want to view more stock data
     repeat_function = input("\nWould you like to view more stock data? (y/n)\n")
     if repeat_function == "n":
         break
