@@ -12,10 +12,11 @@ while True:
         #filter the JSON data based on the given start_date and end_date
         filtered_data = filter_json_data(json_data, start_date, end_date)
         
+        #generate the chart, render it into the browser
         if filtered_data:
             chart = generate_chart(filtered_data, chart_type, stock_symbol)
             render_chart_in_browser(chart)
-            print(filtered_data)
+            print(filtered_data)    #also prints the data into the terminal
         else:
             print("No data found within the specified date range.")
     
